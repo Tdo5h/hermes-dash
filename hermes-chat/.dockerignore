@@ -1,0 +1,13 @@
+node_modules
+.next
+.git
+*.md
+*.tsbuildinfo
+.turbo
+coverage
+.eslintcache
+# Do not bake local secrets or display-name overrides into the image; runtime env comes from Compose `env_file` / `environment`.
+.env
+.env.local
+.env.production
+.env.development

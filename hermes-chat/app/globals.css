@@ -1,0 +1,682 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+@import "./shadcn-tailwind.css";
+
+@source "../node_modules/streamdown/dist/*.js";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+  --font-sans: var(--font-sans);
+  --font-mono: var(--font-mono);
+  --font-serif: var(--font-serif);
+  --font-heading: var(--font-sans);
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --shadow-2xs: var(--shadow-2xs);
+  --shadow-xs: var(--shadow-xs);
+  --shadow-sm: var(--shadow-sm);
+  --shadow: var(--shadow);
+  --shadow-md: var(--shadow-md);
+  --shadow-lg: var(--shadow-lg);
+  --shadow-xl: var(--shadow-xl);
+  --shadow-2xl: var(--shadow-2xl);
+}
+
+:root {
+  /**
+   * Pixels obscured below the Visual Viewport (keyboard, sometimes home-indicator gap).
+   * JS sets bottom inset so fixed composers sit above overlap — do not mirror with translateY.
+   */
+  --hermes-visual-bottom-inset: 0px;
+  --background: oklch(1 0 0);
+  --foreground: oklch(0.3211 0 0);
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.3211 0 0);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.3211 0 0);
+  --primary: oklch(0.6231 0.188 259.8145);
+  --primary-foreground: oklch(1 0 0);
+  --secondary: oklch(0.967 0.0029 264.5419);
+  --secondary-foreground: oklch(0.4461 0.0263 256.8018);
+  --muted: oklch(0.9846 0.0017 247.8389);
+  --muted-foreground: oklch(0.551 0.0234 264.3637);
+  --accent: oklch(0.9514 0.025 236.8242);
+  --accent-foreground: oklch(0.3791 0.1378 265.5222);
+  --destructive: oklch(0.6368 0.2078 25.3313);
+  --destructive-foreground: oklch(1 0 0);
+  --border: oklch(0.9276 0.0058 264.5313);
+  --input: oklch(0.9276 0.0058 264.5313);
+  --ring: oklch(0.62 0 0);
+  --chart-1: oklch(0.6231 0.188 259.8145);
+  --chart-2: oklch(0.5461 0.2152 262.8809);
+  --chart-3: oklch(0.4882 0.2172 264.3763);
+  --chart-4: oklch(0.4244 0.1809 265.6377);
+  --chart-5: oklch(0.3791 0.1378 265.5222);
+  --sidebar: oklch(0.9 0.014 258);
+  --sidebar-foreground: oklch(0.3211 0 0);
+  --sidebar-primary: oklch(0.6231 0.188 259.8145);
+  --sidebar-primary-foreground: oklch(1 0 0);
+  --sidebar-accent: oklch(0.9514 0.025 236.8242);
+  --sidebar-accent-foreground: oklch(0.3791 0.1378 265.5222);
+  --sidebar-border: oklch(0.82 0.02 258);
+  --sidebar-ring: oklch(0.62 0 0);
+  --font-sans: Inter, sans-serif;
+  --font-serif: "Source Serif 4", serif;
+  --font-mono: "JetBrains Mono", monospace;
+  --radius: 0.375rem;
+  --shadow-2xs: 0 1px 29px -1.5px hsl(0 0% 0% / 0.22);
+  --shadow-xs: 0 1px 29px -1.5px hsl(0 0% 0% / 0.22);
+  --shadow-sm: 0 1px 29px -1.5px hsl(0 0% 0% / 0.44), 0 1px 2px -2.5px hsl(0 0% 0% / 0.44);
+  --shadow: 0 1px 29px -1.5px hsl(0 0% 0% / 0.44), 0 1px 2px -2.5px hsl(0 0% 0% / 0.44);
+  --shadow-md: 0 1px 29px -1.5px hsl(0 0% 0% / 0.44), 0 2px 4px -2.5px hsl(0 0% 0% / 0.44);
+  --shadow-lg: 0 1px 29px -1.5px hsl(0 0% 0% / 0.44), 0 4px 6px -2.5px hsl(0 0% 0% / 0.44);
+  --shadow-xl: 0 1px 29px -1.5px hsl(0 0% 0% / 0.44), 0 8px 10px -2.5px hsl(0 0% 0% / 0.44);
+  --shadow-2xl: 0 1px 29px -1.5px hsl(0 0% 0% / 1.1);
+  --tracking-normal: 0em;
+  --spacing: 0.15rem;
+  /*
+   * Chat sidebar (light): calm warm grays — no pure white fills, no harsh white shadow glow.
+   * Same matte family; depth = soft TL + BR only.
+   */
+  --sidebar-depth-canvas: oklch(0.9 0.014 258);
+  --sidebar-depth-raised: oklch(0.935 0.012 258);
+  --sidebar-depth-raised-hover: oklch(0.948 0.014 258);
+  --sidebar-depth-search-on: color-mix(in oklch, var(--sidebar-primary) 18%, oklch(0.28 0.01 264));
+  --sidebar-depth-selected: color-mix(in oklch, var(--sidebar-primary) 34%, oklch(0.32 0.03 264));
+  --sidebar-depth-input: oklch(0.868 0.016 258);
+  --sidebar-neu-raised: -2px -2px 5px hsl(220 30% 99% / 0.55),
+    2px 3px 8px hsl(230 12% 35% / 0.1);
+  --sidebar-neu-raised-hover: -2px -2px 7px hsl(220 25% 99% / 0.65),
+    3px 4px 10px hsl(230 12% 30% / 0.11);
+  --sidebar-neu-raised-active: -2px -2px 7px hsl(220 25% 99% / 0.65),
+    3px 4px 11px hsl(230 12% 30% / 0.12);
+  --sidebar-neu-selected: inset 0 1px 0 0 hsl(220 40% 98% / 0.14),
+    -3px -3px 10px hsl(0 0% 100% / 0.07), 4px 5px 16px hsl(0 0% 0% / 0.42),
+    0 0 0 1px color-mix(in oklch, var(--sidebar-primary) 35%, transparent);
+  --sidebar-button-border: color-mix(in oklch, var(--sidebar-border) 74%, black);
+  --sidebar-button-border-hover: color-mix(in oklch, var(--sidebar-border) 58%, black);
+  --sidebar-button-border-active: color-mix(in oklch, var(--sidebar-border) 50%, black);
+  --sidebar-button-rim: 0 0 0 0 transparent;
+  --sidebar-button-rim-hover: 0 0 0 0 transparent;
+  --sidebar-button-rim-active: 0 0 0 0 transparent;
+  --sidebar-neu-inset: inset 2px 2px 5px hsl(230 14% 40% / 0.1),
+    inset -1px -1px 3px hsl(220 25% 99% / 0.65);
+  --sidebar-neu-composer: inset 1px 1px 3px hsl(230 14% 40% / 0.06),
+    inset -1px -1px 2px hsl(220 25% 99% / 0.45);
+}
+
+.dark {
+  --background: oklch(0.2046 0 0);
+  --foreground: oklch(0.9219 0 0);
+  --card: oklch(0.2686 0 0);
+  --card-foreground: oklch(0.9219 0 0);
+  --popover: oklch(0.2686 0 0);
+  --popover-foreground: oklch(0.9219 0 0);
+  --primary: oklch(0.6231 0.188 259.8145);
+  --primary-foreground: oklch(1 0 0);
+  --secondary: oklch(0.2686 0 0);
+  --secondary-foreground: oklch(0.9219 0 0);
+  --muted: oklch(0.2393 0 0);
+  --muted-foreground: oklch(0.7155 0 0);
+  --accent: oklch(0.3791 0.1378 265.5222);
+  --accent-foreground: oklch(0.8823 0.0571 254.1284);
+  --destructive: oklch(0.6368 0.2078 25.3313);
+  --destructive-foreground: oklch(1 0 0);
+  --border: oklch(0.3715 0 0);
+  --input: oklch(0.3715 0 0);
+  --ring: oklch(0.7 0 0);
+  --chart-1: oklch(0.7137 0.1434 254.624);
+  --chart-2: oklch(0.6231 0.188 259.8145);
+  --chart-3: oklch(0.5461 0.2152 262.8809);
+  --chart-4: oklch(0.4882 0.2172 264.3763);
+  --chart-5: oklch(0.4244 0.1809 265.6377);
+  --sidebar: oklch(0.2046 0 0);
+  --sidebar-foreground: oklch(0.9219 0 0);
+  --sidebar-primary: oklch(0.6231 0.188 259.8145);
+  --sidebar-primary-foreground: oklch(1 0 0);
+  --sidebar-accent: oklch(0.3791 0.1378 265.5222);
+  --sidebar-accent-foreground: oklch(0.8823 0.0571 254.1284);
+  --sidebar-border: oklch(0.3715 0 0);
+  --sidebar-ring: oklch(0.7 0 0);
+  --font-sans: Inter, sans-serif;
+  --font-serif: "Source Serif 4", serif;
+  --font-mono: "JetBrains Mono", monospace;
+  --radius: 0.375rem;
+  --shadow-2xs: 0 1px 29px -1.5px hsl(0 0% 0% / 0.22);
+  --shadow-xs: 0 1px 29px -1.5px hsl(0 0% 0% / 0.22);
+  --shadow-sm: 0 1px 29px -1.5px hsl(0 0% 0% / 0.44), 0 1px 2px -2.5px hsl(0 0% 0% / 0.44);
+  --shadow: 0 1px 29px -1.5px hsl(0 0% 0% / 0.44), 0 1px 2px -2.5px hsl(0 0% 0% / 0.44);
+  --shadow-md: 0 1px 29px -1.5px hsl(0 0% 0% / 0.44), 0 2px 4px -2.5px hsl(0 0% 0% / 0.44);
+  --shadow-lg: 0 1px 29px -1.5px hsl(0 0% 0% / 0.44), 0 4px 6px -2.5px hsl(0 0% 0% / 0.44);
+  --shadow-xl: 0 1px 29px -1.5px hsl(0 0% 0% / 0.44), 0 8px 10px -2.5px hsl(0 0% 0% / 0.44);
+  --shadow-2xl: 0 1px 29px -1.5px hsl(0 0% 0% / 1.1);
+  /*
+   * Chat sidebar (dark): neutral graphite, not purple-red.
+   * Depth: black/grey shade with blue reserved for active and selected states only.
+   */
+  --sidebar-depth-canvas: oklch(0.17 0.01 264);
+  --sidebar-depth-raised: oklch(0.255 0.01 264);
+  --sidebar-depth-raised-hover: oklch(0.3 0.012 264);
+  --sidebar-depth-search-on: color-mix(in oklch, var(--sidebar-primary) 18%, oklch(0.28 0.01 264));
+  --sidebar-depth-selected: color-mix(in oklch, var(--sidebar-primary) 34%, oklch(0.32 0.03 264));
+  --sidebar-depth-input: oklch(0.2 0.015 264);
+  --sidebar-neu-raised: -2px -2px 7px hsl(0 0% 100% / 0.06),
+    3px 4px 12px hsl(0 0% 0% / 0.45);
+  --sidebar-neu-raised-hover: -3px -3px 10px hsl(0 0% 100% / 0.085),
+    4px 5px 14px hsl(0 0% 0% / 0.48);
+  --sidebar-neu-raised-active: -3px -3px 9px hsl(0 0% 100% / 0.08),
+    4px 5px 15px hsl(0 0% 0% / 0.46);
+  --sidebar-neu-selected: inset 0 1px 0 0 hsl(220 40% 98% / 0.14),
+    -3px -3px 10px hsl(0 0% 100% / 0.07), 4px 5px 16px hsl(0 0% 0% / 0.42),
+    0 0 0 1px color-mix(in oklch, var(--sidebar-primary) 35%, transparent);
+  --sidebar-button-border: color-mix(in oklch, var(--sidebar-border) 88%, white 5%);
+  --sidebar-button-border-hover: color-mix(in oklch, var(--sidebar-border) 96%, white 7%);
+  --sidebar-button-border-active: color-mix(in oklch, var(--sidebar-border) 92%, var(--sidebar-primary) 8%);
+  --sidebar-button-rim: 0 0 0 0 transparent;
+  --sidebar-button-rim-hover: 0 0 0 0 transparent;
+  --sidebar-button-rim-active: 0 0 0 0 transparent;
+  --sidebar-neu-inset: inset 2px 3px 8px hsl(0 0% 0% / 0.5),
+    inset -2px -2px 6px hsl(0 0% 100% / 0.04);
+  --sidebar-neu-composer: inset 1px 1px 4px hsl(0 0% 0% / 0.28),
+    inset -1px -1px 3px hsl(0 0% 100% / 0.025);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+    scrollbar-width: none;
+  }
+  *::-webkit-scrollbar {
+    display: none;
+  }
+  /* Paint edge-to-edge behind iOS translucent status bar (viewport-fit=cover). */
+  html {
+    @apply font-sans;
+    background-color: var(--sidebar-depth-canvas);
+    /* Do not use height:100% alone on iOS — it can resolve shorter than the painted screen with viewport-fit=cover. */
+    min-height: 100%;
+    min-height: 100dvh;
+    min-height: 100svh;
+    min-height: -webkit-fill-available;
+    /* Reduce whole-page rubber-band so fixed mobile chrome does not drift with overscroll. */
+    overscroll-behavior-y: none;
+  }
+  body {
+    @apply text-foreground;
+    background-color: var(--sidebar-depth-canvas);
+    /* Height / overflow come from app/layout.tsx (h-dvh overflow-hidden) so only the chat column scrolls. */
+  }
+}
+
+/* Standalone PWA: large viewport height tracks the full device better than dvh when UI chrome is absent. */
+@supports (height: 100lvh) {
+  @media (display-mode: standalone) {
+    html {
+      min-height: 100lvh;
+    }
+    body {
+      min-height: 100lvh;
+    }
+  }
+}
+
+@layer utilities {
+  /** iOS PWA: extend past buggy 100dvh; keep 100dvh first for non-WebKit. */
+  .min-h-app-screen {
+    min-height: 100dvh;
+    min-height: 100svh;
+    min-height: -webkit-fill-available;
+  }
+
+  @supports (height: 100lvh) {
+    @media (display-mode: standalone) {
+      .min-h-app-screen {
+        min-height: 100lvh;
+      }
+    }
+  }
+
+  /**
+   * Home-indicator inset: legacy iOS needs constant(); env() alone can be 0 in some PWAs.
+   * Use on fixed footers so the bar paints through the inset (symmetric with top safe area).
+   */
+  .pb-safe-bottom {
+    padding-bottom: constant(safe-area-inset-bottom);
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+}
+
+/* Shared shell depth: sidebars + main chat chrome (header, composer).
+ * Keep these unlayered so Next/Turbopack cannot let generated utilities override the Hermes theme.
+ */
+  .chat-sidebar-depth .neu-raised,
+  .settings-depth .neu-raised,
+  .main-chat-depth .neu-raised {
+    border: none;
+    background: var(--sidebar-depth-raised);
+    box-shadow: var(--sidebar-neu-raised);
+    transition: background 0.25s ease, box-shadow 0.28s ease, color 0.2s ease;
+  }
+
+  .chat-sidebar-depth button.neu-raised,
+  .settings-depth button.neu-raised,
+  .main-chat-depth button.neu-raised,
+  .chat-sidebar-depth a.neu-raised,
+  .settings-depth a.neu-raised,
+  .main-chat-depth a.neu-raised,
+  .chat-sidebar-depth [role="button"].neu-raised,
+  .settings-depth [role="button"].neu-raised,
+  .main-chat-depth [role="button"].neu-raised {
+    border: 1px solid var(--sidebar-button-border);
+    box-shadow: var(--sidebar-button-rim), var(--sidebar-neu-raised);
+  }
+
+  .chat-sidebar-depth .neu-raised:hover:not(:disabled),
+  .settings-depth .neu-raised:hover:not(:disabled),
+  .main-chat-depth .neu-raised:hover:not(:disabled) {
+    box-shadow: var(--sidebar-neu-raised-hover);
+    background: var(--sidebar-depth-raised-hover);
+  }
+
+  .chat-sidebar-depth button.neu-raised:hover:not(:disabled),
+  .settings-depth button.neu-raised:hover:not(:disabled),
+  .main-chat-depth button.neu-raised:hover:not(:disabled),
+  .chat-sidebar-depth a.neu-raised:hover,
+  .settings-depth a.neu-raised:hover,
+  .main-chat-depth a.neu-raised:hover,
+  .chat-sidebar-depth [role="button"].neu-raised:hover,
+  .settings-depth [role="button"].neu-raised:hover,
+  .main-chat-depth [role="button"].neu-raised:hover {
+    border-color: var(--sidebar-button-border-hover);
+    box-shadow: var(--sidebar-button-rim-hover), var(--sidebar-neu-raised-hover);
+  }
+
+  .chat-sidebar-depth .neu-raised-active,
+  .settings-depth .neu-raised-active,
+  .main-chat-depth .neu-raised-active {
+    background: var(--sidebar-depth-search-on);
+    color: var(--sidebar-primary-foreground);
+    box-shadow: var(--sidebar-neu-raised-active);
+    transition: background 0.25s ease, box-shadow 0.28s ease, color 0.2s ease;
+  }
+
+  .chat-sidebar-depth button.neu-raised-active,
+  .settings-depth button.neu-raised-active,
+  .main-chat-depth button.neu-raised-active,
+  .chat-sidebar-depth a.neu-raised-active,
+  .settings-depth a.neu-raised-active,
+  .main-chat-depth a.neu-raised-active,
+  .chat-sidebar-depth [role="button"].neu-raised-active,
+  .settings-depth [role="button"].neu-raised-active,
+  .main-chat-depth [role="button"].neu-raised-active {
+    border: 1px solid transparent;
+    box-shadow: var(--sidebar-button-rim-active), var(--sidebar-neu-raised-active);
+  }
+
+  /* Selected chat row */
+  .chat-sidebar-depth .neu-selected,
+  .settings-depth .neu-selected,
+  .main-chat-depth .neu-selected {
+    border: none;
+    background: var(--sidebar-depth-selected);
+    color: var(--sidebar-primary-foreground);
+    box-shadow: var(--sidebar-neu-selected);
+    transition: background 0.25s ease, box-shadow 0.28s ease, color 0.2s ease;
+  }
+
+  .hermes-selected-choice {
+    border-color: transparent;
+    background: var(--sidebar-depth-selected);
+    color: var(--sidebar-primary-foreground);
+    box-shadow: var(--sidebar-neu-selected);
+  }
+
+  .dark .hermes-selected-choice {
+    border-color: transparent;
+    background: var(--sidebar-depth-selected);
+    color: var(--sidebar-primary-foreground);
+    box-shadow: var(--sidebar-neu-selected);
+  }
+
+  .chat-sidebar-depth .neu-row-active {
+    color: var(--sidebar-primary-foreground) !important;
+  }
+
+  .chat-sidebar-depth .neu-selected,
+  .settings-depth .neu-selected,
+  .main-chat-depth .neu-selected,
+  .chat-sidebar-depth .neu-raised-active,
+  .settings-depth .neu-raised-active,
+  .main-chat-depth .neu-raised-active {
+    color: var(--sidebar-primary-foreground) !important;
+  }
+
+  .chat-sidebar-depth .neu-selected :is(.text-muted-foreground, .text-sidebar-foreground, .text-sidebar-primary),
+  .settings-depth .neu-selected :is(.text-muted-foreground, .text-sidebar-foreground, .text-sidebar-primary),
+  .main-chat-depth .neu-selected :is(.text-muted-foreground, .text-sidebar-foreground, .text-sidebar-primary),
+  .chat-sidebar-depth .neu-raised-active :is(.text-muted-foreground, .text-sidebar-foreground, .text-sidebar-primary),
+  .settings-depth .neu-raised-active :is(.text-muted-foreground, .text-sidebar-foreground, .text-sidebar-primary),
+  .main-chat-depth .neu-raised-active :is(.text-muted-foreground, .text-sidebar-foreground, .text-sidebar-primary) {
+    color: color-mix(in oklch, var(--sidebar-primary-foreground) 78%, transparent) !important;
+  }
+
+  .chat-sidebar-depth .neu-selected :is(.font-medium, strong),
+  .settings-depth .neu-selected :is(.font-medium, strong),
+  .main-chat-depth .neu-selected :is(.font-medium, strong),
+  .chat-sidebar-depth .neu-raised-active :is(.font-medium, strong),
+  .settings-depth .neu-raised-active :is(.font-medium, strong),
+  .main-chat-depth .neu-raised-active :is(.font-medium, strong) {
+    color: var(--sidebar-primary-foreground) !important;
+  }
+
+  .is-user .hermes-message-content {
+    border: none !important;
+    background: var(--sidebar-depth-raised) !important;
+    box-shadow: var(--sidebar-neu-raised) !important;
+  }
+
+  .main-chat-depth .hermes-composer-input {
+    background: var(--sidebar-depth-input);
+    background-clip: padding-box;
+    box-shadow: var(--sidebar-neu-composer);
+    border: 1px solid color-mix(in oklch, var(--sidebar-border) 78%, var(--sidebar-depth-canvas));
+  }
+
+  [data-streamdown="table-wrapper"] {
+    border: none !important;
+    border-radius: var(--radius);
+    background: var(--sidebar-depth-input) !important;
+    box-shadow: var(--sidebar-neu-inset) !important;
+    overflow: hidden;
+  }
+
+  [data-streamdown="table-wrapper"] > div,
+  [data-streamdown="table-wrapper"] > div:last-child {
+    border-color: color-mix(in oklch, var(--sidebar-border) 72%, transparent) !important;
+    background: transparent !important;
+  }
+
+  [data-streamdown="table-wrapper"] table {
+    width: 100%;
+    border-collapse: collapse;
+    background: transparent !important;
+    color: var(--foreground) !important;
+  }
+
+  [data-streamdown="table-wrapper"] thead,
+  [data-streamdown="table-header"],
+  [data-streamdown="table-header-cell"],
+  [data-streamdown="table-wrapper"] th {
+    background: color-mix(in oklch, var(--sidebar-depth-input) 82%, var(--sidebar-depth-raised)) !important;
+  }
+
+  [data-streamdown="table-body"],
+  [data-streamdown="table-row"],
+  [data-streamdown="table-cell"],
+  [data-streamdown="table-wrapper"] tbody,
+  [data-streamdown="table-wrapper"] tr,
+  [data-streamdown="table-wrapper"] td {
+    background: transparent !important;
+  }
+
+  [data-streamdown="table-row"],
+  [data-streamdown="table-header-cell"],
+  [data-streamdown="table-cell"],
+  [data-streamdown="table-wrapper"] th,
+  [data-streamdown="table-wrapper"] td {
+    border-color: color-mix(in oklch, var(--sidebar-border) 72%, transparent) !important;
+  }
+
+  [data-streamdown="table-wrapper"] tbody tr:nth-child(even),
+  [data-streamdown="table-body"] [data-streamdown="table-row"]:nth-child(even) {
+    background: color-mix(in oklch, var(--sidebar-depth-raised) 22%, transparent) !important;
+  }
+
+  .chat-sidebar-depth .neu-inset-input,
+  .settings-depth .neu-inset-input,
+  .main-chat-depth .neu-inset-input {
+    background: var(--sidebar-depth-input);
+    box-shadow: var(--sidebar-neu-inset);
+    border: none;
+    transition: background 0.25s ease, box-shadow 0.28s ease;
+  }
+
+  .chat-sidebar-depth .neu-inset-input:focus,
+  .settings-depth .neu-inset-input:focus,
+  .main-chat-depth .neu-inset-input:focus {
+    outline: none;
+    box-shadow: var(--sidebar-neu-inset),
+      0 0 0 2px color-mix(in oklch, var(--sidebar-primary) 28%, transparent);
+  }
+
+  .chat-sidebar-depth .neu-inset-input:focus-within,
+  .settings-depth .neu-inset-input:focus-within,
+  .main-chat-depth .neu-inset-input:focus-within {
+    box-shadow: var(--sidebar-neu-inset),
+      0 0 0 2px color-mix(in oklch, var(--sidebar-primary) 28%, transparent);
+  }
+
+  /* Recessed note / meta blocks (settings build string, thinking details, etc.) */
+  .chat-sidebar-depth .neu-recessed,
+  .settings-depth .neu-recessed,
+  .main-chat-depth .neu-recessed {
+    background: var(--sidebar-depth-input);
+    box-shadow: var(--sidebar-neu-inset);
+    border: none;
+  }
+
+  .chat-sidebar-depth .neu-dropdown-panel,
+  .settings-depth .neu-dropdown-panel {
+    background: var(--sidebar-depth-raised);
+    box-shadow: var(--sidebar-neu-raised-hover);
+    border: none;
+  }
+
+  .chat-sidebar-depth .neu-dropdown-item-active,
+  .settings-depth .neu-dropdown-item-active {
+    background: var(--sidebar-depth-selected);
+    color: var(--sidebar-primary-foreground);
+    box-shadow: var(--sidebar-neu-selected);
+  }
+
+  .chat-sidebar-depth .neu-dropdown-item:not(.neu-dropdown-item-active):hover,
+  .settings-depth .neu-dropdown-item:not(.neu-dropdown-item-active):hover {
+    background: var(--sidebar-depth-raised-hover);
+  }
+
+  .hermes-tip-bubble {
+    position: fixed;
+    z-index: 1000;
+    width: max-content;
+    max-width: min(17rem, calc(100vw - 2rem));
+    pointer-events: none;
+    border: 1px solid color-mix(in oklch, var(--sidebar-primary) 78%, white 4%);
+    border-radius: var(--radius);
+    background:
+      linear-gradient(180deg, color-mix(in oklch, var(--sidebar-depth-raised) 92%, black), color-mix(in oklch, var(--sidebar-depth-input) 86%, black));
+    box-shadow:
+      0 0 0 1px color-mix(in oklch, var(--sidebar-primary) 22%, transparent),
+      0 0.75rem 1.8rem hsl(0 0% 0% / 0.38),
+      var(--sidebar-neu-raised);
+    color: var(--foreground);
+    font-size: 0.72rem;
+    font-weight: 500;
+    line-height: 1.32;
+    padding: 0.52rem 0.65rem;
+    text-align: left;
+    white-space: normal;
+    animation: hermes-tip-in 120ms ease-out;
+  }
+
+  .hermes-tip-bubble.is-top {
+    transform: translate(-50%, calc(-100% - 0.68rem));
+  }
+
+  .hermes-tip-bubble.is-bottom {
+    transform: translate(-50%, 0.68rem);
+  }
+
+  .hermes-tip-bubble::before {
+    position: absolute;
+    left: 50%;
+    width: 0.58rem;
+    height: 0.58rem;
+    border: inherit;
+    background: color-mix(in oklch, var(--sidebar-depth-input) 90%, black);
+    content: "";
+    color: var(--sidebar-primary);
+    transform: translateX(-50%) rotate(45deg);
+  }
+
+  .hermes-tip-bubble.is-top::before {
+    bottom: -0.33rem;
+    border-left: 0;
+    border-top: 0;
+  }
+
+  .hermes-tip-bubble.is-bottom::before {
+    top: -0.33rem;
+    border-right: 0;
+    border-bottom: 0;
+  }
+
+  @keyframes hermes-tip-in {
+    from {
+      opacity: 0;
+      filter: blur(2px);
+    }
+    to {
+      opacity: 1;
+      filter: blur(0);
+    }
+  }
+
+  .hermes-reply-print-root {
+    display: none;
+  }
+
+  @media print {
+    html.hermes-printing-reply,
+    html.hermes-printing-reply body {
+      background: white !important;
+    }
+
+    html.hermes-printing-reply body > *:not(#hermes-reply-print-root) {
+      display: none !important;
+    }
+
+    html.hermes-printing-reply #hermes-reply-print-root {
+      display: block !important;
+      color: #111827;
+      font-family:
+        ui-sans-serif,
+        system-ui,
+        -apple-system,
+        BlinkMacSystemFont,
+        "Segoe UI",
+        sans-serif;
+      margin: 0;
+      padding: 18mm;
+    }
+
+    .hermes-reply-print-eyebrow {
+      border-bottom: 1px solid #d1d5db;
+      color: #4b5563;
+      font-size: 10pt;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      margin-bottom: 10mm;
+      padding-bottom: 4mm;
+      text-transform: uppercase;
+    }
+
+    .hermes-reply-print-body {
+      color: #111827;
+      font-family:
+        ui-sans-serif,
+        system-ui,
+        -apple-system,
+        BlinkMacSystemFont,
+        "Segoe UI",
+        sans-serif;
+      font-size: 11pt;
+      line-height: 1.45;
+      margin: 0;
+      white-space: pre-wrap;
+      overflow-wrap: anywhere;
+    }
+
+    .hermes-reply-print-body * {
+      color: #111827 !important;
+      box-shadow: none !important;
+      text-shadow: none !important;
+    }
+
+    .hermes-reply-print-body p,
+    .hermes-reply-print-body ul,
+    .hermes-reply-print-body ol,
+    .hermes-reply-print-body blockquote,
+    .hermes-reply-print-body pre,
+    .hermes-reply-print-body table {
+      margin-bottom: 4mm;
+      white-space: normal;
+    }
+
+    .hermes-reply-print-body table {
+      border-collapse: collapse;
+      width: 100%;
+    }
+
+    .hermes-reply-print-body th,
+    .hermes-reply-print-body td {
+      border: 1px solid #9ca3af;
+      padding: 2.5mm 3mm;
+      text-align: left;
+      vertical-align: top;
+    }
+
+    .hermes-reply-print-body th {
+      background: #e5e7eb !important;
+      font-weight: 700;
+    }
+
+    .hermes-reply-print-body img {
+      max-width: 100%;
+      page-break-inside: avoid;
+    }
+  }

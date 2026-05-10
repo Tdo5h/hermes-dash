@@ -1,0 +1,302 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: hermes-postgres
+    restart: unless-stopped
+    profiles: ["chat"]
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-hermeschat}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-hermeschat}
+      POSTGRES_DB: ${POSTGRES_DB:-hermeschat}
+    volumes:
+      - hermes_pgdata:/var/lib/postgresql/data
+      - ./postgres/init.sql:/docker-entrypoint-initdb.d/01-hermeschat.sql:ro
+    networks:
+      - hermes-net
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 15s
+
+
+  hermes-bridge:
+    build:
+      context: ./hermes-bridge
+      dockerfile: Dockerfile
+    image: hermes-bridge:local
+    container_name: hermes-bridge
+    restart: unless-stopped
+    profiles: ["chat"]
+    environment:
+      DATABASE_URL: ${DATABASE_URL:-postgresql://hermeschat:hermeschat@postgres:5432/hermeschat}
+      HERMES_PROJECTS_ROOT: /opt/data/projects
+      HERMES_PROJECTS_PRIVATE_FS_ROOT: ${HERMES_PROJECTS_PRIVATE_FS_ROOT:-}
+      HERMES_PROJECTS_SHARED_FS_ROOT: ${HERMES_PROJECTS_SHARED_FS_ROOT:-/vault-shared}
+      STAGING_DIR: /var/vault-staging
+      HERMES_FS_UID: ${HERMES_FS_UID:-10000}
+      HERMES_FS_GID: ${HERMES_FS_GID:-1001}
+    volumes:
+      - ./hermes-data:/opt/data
+      - ./environments/business-test/data/shared-wiki:/vault-shared
+      - vault_staging:/var/vault-staging
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - hermes-net
+
+  hermes:
+    build:
+      context: .
+      dockerfile: hermes-agent.Dockerfile
+    image: hermes-gateway:local
+    container_name: hermes-gateway
+    restart: unless-stopped
+    command: ["gateway", "run"]
+    env_file:
+      - ./.env
+      - ./hermes-data/.env
+    environment:
+      HERMES_HOME: /opt/data
+      HERMES_HOME_MODE: "0750"
+      HERMES_FS_UID: ${HERMES_FS_UID:-}
+      HERMES_FS_GID: ${HERMES_FS_GID:-}
+      HERMES_AUTH_AUTOFIX: ${HERMES_AUTH_AUTOFIX:-1}
+      PUSH_WEBHOOK_TOKEN: ${PUSH_WEBHOOK_TOKEN:-}
+      HERMESCHAT_INTERNAL_URL: "http://hermes-chat:3100"
+      HERMESCHAT_INTERNAL_TOKEN: ${HERMES_TOKEN:-}
+    ports:
+      - "127.0.0.1:8642:8642"
+    volumes:
+      - ./hermes-data:/opt/data
+      - ./environments/business-test/data/shared-wiki:/vault-shared
+      - ./builds:/opt/data/builds:rw
+      - ./hermes-data/projects:/opt/hermes/projects
+      - hermes_chat_data:/var/hermes-chat:ro
+      - ./patches/gateway_run.py:/opt/hermes/gateway/run.py:ro
+      - ./patches/api_server.py:/opt/hermes/gateway/platforms/api_server.py:ro
+      - ./patches/cron_scheduler.py:/opt/hermes/cron/scheduler.py:ro
+      - ./patches/cron_jobs.py:/opt/hermes/cron/jobs.py:ro
+      - ./patches/skill_usage.py:/opt/hermes/tools/skill_usage.py:ro
+      - ./patches/skills_sync.py:/opt/hermes/tools/skills_sync.py:ro
+      - ./patches/openrouter_sidecar_accounting.py:/opt/hermes/tools/openrouter_sidecar_accounting.py:ro
+      - ./patches/openrouter_image_helpers.py:/opt/hermes/tools/openrouter_image_helpers.py:ro
+      - ./patches/image_generation_tool.py:/opt/hermes/tools/image_generation_tool.py:ro
+      - ./patches/image_edit_tool.py:/opt/hermes/tools/image_edit_tool.py:ro
+      - ./patches/file_operations.py:/opt/hermes/tools/file_operations.py:ro
+      - ./patches/workspace_knowledge_tool.py:/opt/hermes/tools/workspace_knowledge_tool.py:ro
+      - ./patches/toolsets.py:/opt/hermes/toolsets.py:ro
+      - ./patches/hermes_cli_config.py:/opt/hermes/hermes_cli/config.py:ro
+      - ./patches/hermes_cli_tools_config.py:/opt/hermes/hermes_cli/tools_config.py:ro
+      - ./patches/smart_model_routing.py:/opt/hermes/agent/smart_model_routing.py:ro
+    group_add:
+      - "1001"
+    shm_size: "1gb"
+    deploy:
+      resources:
+        limits:
+          memory: 4G
+          cpus: "2.0"
+    networks:
+      - hermes-net
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "python3 -c \"import urllib.request; urllib.request.urlopen('http://127.0.0.1:8642/health')\" || exit 1",
+        ]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 120s
+
+  dashboard:
+    build:
+      context: .
+      dockerfile: hermes-agent.Dockerfile
+    image: hermes-gateway:local
+    container_name: hermes-dashboard
+    restart: unless-stopped
+    command: ["dashboard", "--host", "0.0.0.0", "--insecure"]
+    environment:
+      HERMES_HOME: /opt/data
+      HERMES_HOME_MODE: "0750"
+      HERMES_FS_UID: ${HERMES_FS_UID:-}
+      HERMES_FS_GID: ${HERMES_FS_GID:-}
+      HERMES_AUTH_AUTOFIX: ${HERMES_AUTH_AUTOFIX:-1}
+      GATEWAY_HEALTH_URL: "http://hermes:8642"
+      GATEWAY_HEALTH_TIMEOUT: "5"
+    ports:
+      - "127.0.0.1:9119:9119"
+    volumes:
+      - ./hermes-data:/opt/data
+    depends_on:
+      hermes:
+        condition: service_healthy
+    networks:
+      - hermes-net
+    deploy:
+      resources:
+        limits:
+          memory: 2G
+          cpus: "1.0"
+
+  caddy:
+    image: caddy:2-alpine
+    container_name: hermes-caddy
+    restart: unless-stopped
+    profiles: ["edge"]
+    ports:
+      - "127.0.0.1:80:80"
+      - "127.0.0.1:443:443"
+    volumes:
+      - ./caddy/Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    depends_on:
+      - chat
+    networks:
+      - hermes-net
+
+  builds-static:
+    image: nginx:alpine
+    container_name: hermes-builds-static
+    restart: unless-stopped
+    profiles: ["chat"]
+    ports:
+      - "127.0.0.1:8090:80"
+    volumes:
+      - ./builds-static/default.conf:/etc/nginx/conf.d/default.conf:ro
+      - ./builds:/usr/share/nginx/html:ro
+    networks:
+      - hermes-net
+
+  chat:
+    build:
+      context: ./hermes-chat
+      dockerfile: ../chat/Dockerfile
+      args:
+        NEXT_PUBLIC_SITE_URL: ${NEXT_PUBLIC_SITE_URL:-http://localhost:3100}
+        NEXT_PUBLIC_APP_BUILD_ID: ${BUILD_ID:-}
+        NEXT_PUBLIC_HERMES_ORG_GLOBAL_SLUG: ${HERMES_ORG_GLOBAL_SLUG:-org-global}
+    container_name: hermes-chat
+    restart: unless-stopped
+    profiles: ["chat"]
+    ports:
+      - "127.0.0.1:3100:3100"
+    env_file:
+      - ./.env
+    environment:
+      NODE_ENV: production
+      PORT: "3100"
+      HOSTNAME: "0.0.0.0"
+      HERMES_CHAT_DATA_DIR: "/var/hermes-chat"
+      DATABASE_URL: ${DATABASE_URL:-postgresql://hermeschat:hermeschat@postgres:5432/hermeschat}
+      VAULT_STAGING_DIR: /var/vault-staging
+      HERMES_DATA_DIR: /opt/hermes-data
+      HERMES_PROJECTS_FS_ROOT: /vault-projects
+      HERMES_PROJECTS_PRIVATE_FS_ROOT: ${HERMES_PROJECTS_PRIVATE_FS_ROOT:-}
+      HERMES_PROJECTS_SHARED_FS_ROOT: ${HERMES_PROJECTS_SHARED_FS_ROOT:-/vault-shared}
+      HERMES_ORG_GLOBAL_SLUG: ${HERMES_ORG_GLOBAL_SLUG:-org-global}
+      HERMES_CHAT_TENANT_ID: ${HERMES_CHAT_TENANT_ID:-}
+      HERMES_URL: "http://hermes:8642"
+      HERMES_GATEWAY_BASE_URL: "http://hermes:8642"
+      HERMES_ALLOW_STACK_MODEL_EDITS: ${HERMES_ALLOW_STACK_MODEL_EDITS:-1}
+      HERMES_DASHBOARD_URL: ${HERMES_DASHBOARD_URL:-}
+      HERMES_SHARED_INGEST_URL: "http://hermes:8642"
+      HERMES_SHARED_INGEST_TOKEN: ${HERMES_TOKEN:-}
+      HERMES_ARCHITECT_URL: "http://hermes:8642"
+      HERMES_ARCHITECT_TOKEN: ${HERMES_TOKEN:-}
+      HERMES_SHARED_INGEST_COORD_DIR: ${HERMES_SHARED_INGEST_COORD_DIR:-/var/shared-ingest-coord}
+      HERMES_ARCHITECT_INGEST_COORD_DIR: ${HERMES_SHARED_INGEST_COORD_DIR:-/var/shared-ingest-coord}
+      HERMES_CHAT_ARCHITECT_NOTIFY_TOKEN: ${HERMES_CHAT_ARCHITECT_NOTIFY_TOKEN:-}
+      INGEST_ENQUEUE_DEFAULT_PROFILE: main
+      BUILDS_MANIFEST_PATH: /app/builds/manifest.json
+      BUILDS_BASE_URL: ${BUILDS_BASE_URL:-http://localhost:8090}
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    volumes:
+      - hermes_chat_data:/var/hermes-chat
+      - ./builds:/app/builds:rw
+      - ./environments/business-test/data/shared-ingest/coord:/var/shared-ingest-coord:rw
+      - ./environments/business-test/data/shared-wiki:/vault-shared
+      - ./hermes-data:/opt/hermes-data:rw
+      - ./hermes-data/projects:/vault-projects:ro
+      - vault_staging:/var/vault-staging
+    depends_on:
+      postgres:
+        condition: service_healthy
+      hermes-bridge:
+        condition: service_started
+      hermes:
+        condition: service_healthy
+    networks:
+      - hermes-net
+
+  shared-ingest-worker:
+    build:
+      context: .
+      dockerfile: shared-ingest-worker/Dockerfile
+    image: hermes-stack-shared-ingest-worker:local
+    container_name: hermes-shared-ingest-worker
+    restart: unless-stopped
+    profiles: ["chat"]
+    env_file:
+      - ./.env
+    environment:
+      NODE_ENV: production
+      DATABASE_URL: ${DATABASE_URL:-postgresql://hermeschat:hermeschat@postgres:5432/hermeschat}
+      HERMES_DATA_DIR: /opt/hermes-data
+      HERMES_PROJECTS_FS_ROOT: /vault-projects
+      HERMES_PROJECTS_PRIVATE_FS_ROOT: ${HERMES_PROJECTS_PRIVATE_FS_ROOT:-}
+      HERMES_PROJECTS_SHARED_FS_ROOT: ${HERMES_PROJECTS_SHARED_FS_ROOT:-/vault-shared}
+      HERMES_ORG_GLOBAL_SLUG: ${HERMES_ORG_GLOBAL_SLUG:-org-global}
+      HERMES_SHARED_INGEST_URL: "http://hermes:8642"
+      HERMES_SHARED_INGEST_TOKEN: ${HERMES_TOKEN:-}
+      HERMES_ARCHITECT_URL: "http://hermes:8642"
+      HERMES_ARCHITECT_TOKEN: ${HERMES_TOKEN:-}
+      INGEST_WORKER_MAIN_HERMES_URL: "http://hermes:8642"
+      INGEST_WORKER_MAIN_HERMES_TOKEN: ${HERMES_TOKEN:-}
+      HERMES_SHARED_INGEST_COORD_DIR: ${HERMES_SHARED_INGEST_COORD_DIR:-/var/shared-ingest-coord}
+      HERMES_ARCHITECT_INGEST_COORD_DIR: ${HERMES_SHARED_INGEST_COORD_DIR:-/var/shared-ingest-coord}
+      HERMESCHAT_INTERNAL_URL: http://hermes-chat:3100
+      HERMES_CHAT_ARCHITECT_NOTIFY_TOKEN: ${HERMES_CHAT_ARCHITECT_NOTIFY_TOKEN:-}
+      INGEST_WORKER_MAIN_SITE_URL: ${NEXT_PUBLIC_SITE_URL:-http://localhost:3100}
+      INGEST_CHAT_MODEL: ${INGEST_CHAT_MODEL:-}
+      INGEST_WORKER_DEFAULT_PROFILE: main
+    volumes:
+      - ./environments/business-test/data/shared-ingest/coord:/var/shared-ingest-coord:rw
+      - ./environments/business-test/data/shared-wiki:/vault-shared:rw
+      - ./hermes-data:/opt/hermes-data:rw
+      - ./hermes-data/projects:/vault-projects:ro
+      - vault_staging:/var/vault-staging:ro
+    depends_on:
+      postgres:
+        condition: service_healthy
+      hermes:
+        condition: service_healthy
+    networks:
+      - hermes-net
+
+  cloudflared:
+    image: cloudflare/cloudflared:latest
+    container_name: hermes-cloudflared
+    restart: unless-stopped
+    profiles: ["tunnel"]
+    network_mode: host
+    command: ["tunnel", "--no-autoupdate", "--metrics", "127.0.0.1:20241", "run"]
+    environment:
+      TUNNEL_TOKEN: ${CLOUDFLARE_TUNNEL_TOKEN}
+
+networks:
+  hermes-net:
+    driver: bridge
+
+volumes:
+  caddy_data:
+  caddy_config:
+  hermes_chat_data:
+  hermes_pgdata:
+  vault_staging:

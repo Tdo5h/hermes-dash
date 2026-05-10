@@ -1,0 +1,10 @@
+# Phase B: point DNS A/AAAA at this host, then set your site address below.
+# For local testing only:
+:80 {
+	reverse_proxy chat:3100
+}
+
+# Production (uncomment and set your domain):
+# your-domain.com {
+# 	reverse_proxy chat:3100
+# }
